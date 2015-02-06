@@ -1,0 +1,31 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "BobTheMadCow",
+    "longName": "LightBox 2",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/Mask2.png",
+                "name": "IMAGE_MASK",
+                "type": "png-trans"
+            },
+            {
+                "file": "images/LightBoxIcon.png",
+                "menuIcon": true,
+                "name": "LIGHT_BOX_ICON",
+                "type": "png"
+            }
+        ]
+    },
+    "shortName": "LightBox 2",
+    "uuid": "1b7cc6ff-82ab-4e75-b99b-5d175662e124",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}

@@ -1,6 +1,6 @@
 //uncomment to disable app logging
-//#undef APP_LOG
-//#define APP_LOG(...)
+#undef APP_LOG
+#define APP_LOG(...)
 
 static AppSync app;
 static uint8_t buffer[256];
@@ -20,15 +20,20 @@ static InverterLayer *inverter_layer;
 
 static void tuple_changed_callback(const uint32_t key, const Tuple* tuple_new, const Tuple* tuple_old, void* context)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "tuple change detected!");
 	  //  we know these values are uint8 format
 	int value = tuple_new->value->uint8;
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Value = %d", value);
+		
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Determining action to take");
 	switch (key) 
 	{
     	case setting_key_invert_colors:
+			APP_LOG(APP_LOG_LEVEL_DEBUG, "check invert_colors");
 			if (invert_colors == true && value != 1)
 			{
 				APP_LOG(APP_LOG_LEVEL_DEBUG, "Change to invert_colors detected");
-        		invert_colors = false;
+	       		invert_colors = false;
 				APP_LOG(APP_LOG_LEVEL_DEBUG, "invert_colors set to false (%d)", invert_colors);
 			}
 			else if(invert_colors == false && value != 0)
@@ -40,6 +45,7 @@ static void tuple_changed_callback(const uint32_t key, const Tuple* tuple_new, c
 			layer_set_hidden(inverter_layer_get_layer(inverter_layer), !invert_colors);
 			break;
 		case setting_key_animation_duration:
+			APP_LOG(APP_LOG_LEVEL_DEBUG, "check animation_duration");
 			if (animation_duration/1000 != value && value >= 0 && value <= 5)
 			{
 				APP_LOG(APP_LOG_LEVEL_DEBUG, "Change to animation_duration detected");
@@ -48,10 +54,11 @@ static void tuple_changed_callback(const uint32_t key, const Tuple* tuple_new, c
 			}
 			break;
 		case setting_key_vibrate:
+			APP_LOG(APP_LOG_LEVEL_DEBUG, "check vibrate");
 			if (vibrate == true && value != 1)
 			{
 				APP_LOG(APP_LOG_LEVEL_DEBUG, "Change to vibrate detected");
-        		vibrate = false;
+				vibrate = false;
 				APP_LOG(APP_LOG_LEVEL_DEBUG, "vibrate set to false (%d)", vibrate);
 			}
 			else if(vibrate == false && value != 0)
@@ -72,12 +79,15 @@ static void app_error_callback(DictionaryResult dict_error, AppMessageResult app
 static void init_communication()
 {
 		  //  app communication
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "initialising tuples");
 	Tuplet tuples[] = {
 		TupletInteger(setting_key_invert_colors, invert_colors),
 		TupletInteger(setting_key_animation_duration, animation_duration),
 		TupletInteger(setting_key_vibrate, vibrate)
 	};
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Openning message path");
 	app_message_open(160, 160);
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "initialising app_sync");
 	app_sync_init(&app, buffer, sizeof(buffer), tuples, ARRAY_LENGTH(tuples), tuple_changed_callback, app_error_callback, NULL);
 }
 
@@ -124,7 +134,7 @@ static void load_settings()
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "vibrate = %d", vibrate);	
 	}
 		
-	init_communication();
+	//init_communication();
 }
 
 static void save_settings()

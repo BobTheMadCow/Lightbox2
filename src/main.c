@@ -3,8 +3,8 @@
 #include <settings.h>
 	
 //uncomment to disable app logging
-//#undef APP_LOG
-//#define APP_LOG(...)
+#undef APP_LOG
+#define APP_LOG(...)
 	
 #define MAX_LIGHTS 4
 #define MAX_STARTUP_SEQUENCES 6
@@ -31,7 +31,6 @@ static Window *window;
 Layer *root_layer;
 static BitmapLayer *mask_layer;
 static GBitmap *mask;
-static InverterLayer *inverter;
 
 static PropertyAnimation *light_animation_one;
 static PropertyAnimation *light_animation_two;
@@ -324,7 +323,7 @@ void handle_init(void)
 	APP_LOG(APP_LOG_LEVEL_WARNING, "Heap used at start of initialisation: %u", heap_bytes_used());
 	APP_LOG(APP_LOG_LEVEL_WARNING, "Heap free at start of initialisation: %u", heap_bytes_free());
 	load_settings();
-	
+
 	window = window_create();
 	window_set_background_color(window, bg_color);
 	window_stack_push(window, true);
@@ -347,14 +346,16 @@ void handle_init(void)
 	layer_add_child(root_layer, bitmap_layer_get_layer(mask_layer));
 
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "initialising inverter layer");
-	inverter = inverter_layer_create(GRect(0,0,144,168));
-	layer_add_child(root_layer, inverter_layer_get_layer(inverter));
-	layer_set_hidden(inverter_layer_get_layer(inverter), !invert_colors); //hide layer to not invert colors
+	inverter_layer = inverter_layer_create(GRect(0,0,144,168));
+	layer_add_child(root_layer, inverter_layer_get_layer(inverter_layer));
+	layer_set_hidden(inverter_layer_get_layer(inverter_layer), !invert_colors); //hide layer to not invert colors
 	
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "Subscribing to minute ticks");
-	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);        
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "Initialisation complete");
+	init_communication();
 
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Subscribing to minute ticks");
+	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Initialisation complete");
 	APP_LOG(APP_LOG_LEVEL_WARNING, "Heap used at end of initialisation: %u", heap_bytes_used());
 	APP_LOG(APP_LOG_LEVEL_WARNING, "Heap free at end of initialisation: %u", heap_bytes_free());
 }
@@ -375,7 +376,8 @@ void handle_deinit(void)
 	property_animation_destroy(light_animation_four);
 	
 	bitmap_layer_destroy(mask_layer);
-	inverter_layer_destroy(inverter);
+	gbitmap_destroy(mask);
+	inverter_layer_destroy(inverter_layer);
 	window_destroy(window);
 }
 

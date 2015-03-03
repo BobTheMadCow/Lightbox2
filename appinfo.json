@@ -21,6 +21,7 @@
             }
         ]
     },
+    "sdkVersion": "2",
     "shortName": "LightBox 2",
     "uuid": "1b7cc6ff-82ab-4e75-b99b-5d175662e124",
     "versionCode": 1,
